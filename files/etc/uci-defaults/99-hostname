@@ -1,0 +1,6 @@
+#!/bin/sh
+# Set the factory-default hostname on first boot.
+[ -f /etc/config/system ] || exit 0
+uci -q set system.@system[0].hostname='KingWrt' || exit 0
+uci -q commit system || exit 0
+exit 0
