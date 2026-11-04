@@ -179,10 +179,8 @@ jobs:
             基于 ${{ matrix.upstream }} 官方 ImageBuilder 构建的 ${{ matrix.name }} 固件。
 
             ### 产物
-            - `*-squashfs-combined-efi.img.gz`：UEFI 启动，squashfs 根文件系统
-            - `*-ext4-combined-efi.img.gz`：UEFI 启动，ext4 根文件系统
-            - `*-image.iso`：BIOS 启动安装镜像
-            - `*-image-efi.iso`：UEFI 启动安装镜像
+            - `*combined-efi.img.gz`：UEFI 启动镜像（squashfs / ext4 视上游而定）
+            - `*image.iso` / `*image-efi.iso`：BIOS / UEFI 安装镜像
 
             ### 默认配置
             - 管理地址：http://10.1.1.2
