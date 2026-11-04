@@ -153,6 +153,10 @@ if [ "$UPSTREAM" = "istoreos" ]; then
     fi
 fi
 
+if [ "$UPSTREAM" = "immortalwrt" ]; then
+    sed -i -E 's/^(CONFIG_(TARGET_IMAGES_(VDI|VMDK|VHDX)|ISO_IMAGES))=y/# \1 is not set/' "${IB_DIR}/.config"
+fi
+
 OVERLAY_DIR="${WORK_DIR}/overlay"
 rm -rf "$OVERLAY_DIR"
 mkdir -p "$OVERLAY_DIR"
