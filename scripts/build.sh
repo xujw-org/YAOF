@@ -9,9 +9,10 @@ SUBTARGET="${2:-}"
 PROFILE="${3:-}"
 PACKAGES_PROFILE="${4:-}"
 VERSION="${5:-}"
+UPSTREAM="${6:-openwrt}"
 
 if [ -z "$TARGET" ] || [ -z "$SUBTARGET" ] || [ -z "$PROFILE" ] || [ -z "$PACKAGES_PROFILE" ]; then
-    echo "Usage: $0 <TARGET> <SUBTARGET> <PROFILE> <PACKAGES_PROFILE> [VERSION]" >&2
+    echo "Usage: $0 <TARGET> <SUBTARGET> <PROFILE> <PACKAGES_PROFILE> [VERSION] [UPSTREAM]" >&2
     exit 1
 fi
 
@@ -205,8 +206,8 @@ fi
 
 find "$IB_BIN_DIR" -type f -name "$MATCH_PATTERN" | while read -r img; do
     fname=$(basename "$img")
-    clean_suffix=$(echo "$fname" | sed -E "s/^openwrt-.*-${TARGET}-${SUBTARGET}-${PROFILE}-//")
-    out_name="YAOF-${PLATFORM_LABEL}-${VERSION}-${DATE_STR}-${clean_suffix}"
+    clean_suffix=$(echo "$fname" | sed -E "s/^${UPSTREAM}-.*-${TARGET}-${SUBTARGET}-${PROFILE}-//")
+    out_name="${UPSTREAM}-${PLATFORM_LABEL}-${VERSION}-${DATE_STR}-${clean_suffix}"
     cp -f "$img" "${OUTPUT_DIR}/${out_name}"
     log "Saved: ${out_name}"
 done
