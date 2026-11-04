@@ -136,7 +136,9 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y -qq --no-install-recommends \
             build-essential zstd curl wget jq file rsync \
-            libncurses5-dev zlib1g-dev gawk git gettext libssl-dev xsltproc qemu-utils
+            libncurses5-dev zlib1g-dev gawk git gettext libssl-dev xsltproc \
+            qemu-utils genisoimage
+          sudo ln -sf /usr/bin/genisoimage /usr/local/bin/mkisofs
 
       - name: Assemble Firmware via ImageBuilder
         shell: bash
