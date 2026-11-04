@@ -155,7 +155,7 @@ PACKAGES="$(load_packages "${ROOT_DIR}/profiles/packages.common") $(load_package
 # ImmortalWrt's ImageBuilder already ships packages that own files ours provide.
 if [ "$UPSTREAM" = "immortalwrt" ]; then
     PACKAGES=$(printf '%s\n' "$PACKAGES" | tr ' ' '\n' | grep -vx 'autocore-x86' | tr '\n' ' ')
-    PACKAGES="${PACKAGES} -default-settings -kmod-usb-net-rtl8152-vendor"
+    PACKAGES="${PACKAGES} -default-settings -default-settings-chn -kmod-usb-net-rtl8152-vendor"
 fi
 BUILD_LOG="${WORK_DIR}/build.log"
 SKIPPED_PACKAGES=""
