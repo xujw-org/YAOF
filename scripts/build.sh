@@ -138,6 +138,21 @@ elif ! grep -qxF "$FEED_URL" "${IB_DIR}/repositories"; then
     sed -i "1i ${FEED_URL}" "${IB_DIR}/repositories"
 fi
 
+# iStoreOS ships a reduced package set; third-party packages need the
+# matching OpenWrt release feeds for their base libraries.
+if [ "$UPSTREAM" = "istoreos" ]; then
+    owrt_version=$(sed -nE 's/^VERSION_NUMBER:=.*,([0-9]+\.[0-9]+\.[0-9]+)\)$/\1/p' "${IB_DIR}/include/version.mk" | tail -n 1)
+    [ -n "$owrt_version" ] || owrt_version="25.12.6"
+    if ! grep -qF "downloads.openwrt.org/releases/${owrt_version}/targets/${TARGET}" "${IB_DIR}/repositories"; then
+        {
+            printf '%s\n' "https://downloads.openwrt.org/releases/${owrt_version}/targets/${TARGET}/${SUBTARGET}/packages/packages.adb"
+            for feed in base luci packages routing telephony; do
+                printf '%s\n' "https://downloads.openwrt.org/releases/${owrt_version}/packages/${ARCH}/${feed}/packages.adb"
+            done
+        } >> "${IB_DIR}/repositories"
+    fi
+fi
+
 OVERLAY_DIR="${WORK_DIR}/overlay"
 rm -rf "$OVERLAY_DIR"
 mkdir -p "$OVERLAY_DIR"
