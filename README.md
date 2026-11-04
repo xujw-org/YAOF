@@ -9,7 +9,7 @@
 ## 特性
 
 - **三上游**：OpenWrt、ImmortalWrt、iStoreOS 均可构建 x86-64 固件；NanoPi 系列使用 OpenWrt
-- **默认配置**：管理地址 `10.1.1.2/255.255.255.0`，主机名 `KingWrt`
+- **默认配置**：管理地址 `10.1.1.2/255.255.255.0`，主机名使用各上游默认
 - **ttyd 网页终端**：`http://10.1.1.2:7681`，免登录直接进入 root shell（仅建议在可信 LAN 使用）
 - **现代 LuCI**：纯 JS 界面、Vantage 主题，首次开机初始化中文环境、国内 NTP 与镜像源
 - **插件**：HomeProxy、Nikki、Honk / dae（eBPF 透明代理）、FlowCone（eBPF FullCone NAT）、WireGuard、ZeroTier、SQM（CAKE / FQ_Codel）、NATMap-T、Bandix、AP-Modem、ARP 绑定、AirConnect、DDNS、UPnP、3cat
