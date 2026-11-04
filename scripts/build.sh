@@ -132,7 +132,9 @@ log "Fetching feed signing key: ${KEY_URL}"
 curl -fsSL --retry 3 --retry-delay 2 "$KEY_URL" -o "${IB_DIR}/keys/custom-feed.rsa.pub" || die "Failed to download feed signing key"
 
 FEED_URL="https://qiusimons.github.io/OpenWrt-Add/${ARCH}/packages.adb"
-if ! grep -qxF "$FEED_URL" "${IB_DIR}/repositories"; then
+if [ ! -s "${IB_DIR}/repositories" ]; then
+    printf '%s\n' "$FEED_URL" > "${IB_DIR}/repositories"
+elif ! grep -qxF "$FEED_URL" "${IB_DIR}/repositories"; then
     sed -i "1i ${FEED_URL}" "${IB_DIR}/repositories"
 fi
 
@@ -244,7 +246,7 @@ fi
 
 find "$IB_BIN_DIR" -type f -name "$MATCH_PATTERN" | while read -r img; do
     fname=$(basename "$img")
-    clean_suffix=$(echo "$fname" | sed -E "s/^${UPSTREAM}-.*-${TARGET}-${SUBTARGET}-${PROFILE}-//")
+    clean_suffix=$(echo "$fname" | sed -E "s/^${UPSTREAM}-(.*-)?${TARGET}-${SUBTARGET}-${PROFILE}-//")
     out_name="${UPSTREAM}-${PLATFORM_LABEL}-${VERSION}-${DATE_STR}-${clean_suffix}"
     cp -f "$img" "${OUTPUT_DIR}/${out_name}"
     log "Saved: ${out_name}"
