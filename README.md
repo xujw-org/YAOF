@@ -20,7 +20,7 @@
 
 ### 特性
 
-- 基于 OpenWrt 官方 ImageBuilder 与 [OpenWrt-Add](https://github.com/QiuSimons/OpenWrt-Add) 预编译 APK 签名源组装，默认管理地址 10.1.1.2
+- 基于 OpenWrt / ImmortalWrt 官方 ImageBuilder 与 [OpenWrt-Add](https://github.com/QiuSimons/OpenWrt-Add) 预编译 APK 签名源组装，默认管理地址 10.1.1.2
 - 纯 JS 现代 LuCI 界面，彻底淘汰老旧 Lua CBI 与 luci-compat
 - 首次开机动态初始化中文环境、国内 NTP、国内软件源镜像及 Vantage 现代主题与实时网络仪表盘
 - 插件包含：HomeProxy、Nikki、Honk / dae (基于 eBPF 的透明代理)、FlowCone (基于 eBPF 的 FullCone NAT)、WireGuard、ZeroTier、SQM (CAKE / FQ_Codel)、NATMap-T、Bandix (实时流量监控)、AP-Modem、ARP 绑定、AirConnect、DDNS、UPnP、3cat
@@ -34,13 +34,18 @@
 
 | 设备型号 | 架构 Target/Subtarget | 官方 Profile 名 | 固件输出标识 |
 | :--- | :--- | :--- | :--- |
-| **X86** | `x86/64` | `generic` | `openwrt-x86-64-...` |
+| **X86** | `x86/64` | `generic` | `openwrt-x86-64-...` / `immortalwrt-x86-64-...` |
 | **NanoPi R2S** | `rockchip/armv8` | `friendlyarm_nanopi-r2s` | `openwrt-nanopi-r2s-...` |
 | **NanoPi R2C** | `rockchip/armv8` | `friendlyarm_nanopi-r2c` | `openwrt-nanopi-r2c-...` |
 | **NanoPi R3S** | `rockchip/armv8` | `friendlyarm_nanopi-r3s` | `openwrt-nanopi-r3s-...` |
 | **NanoPi R4S** | `rockchip/armv8` | `friendlyarm_nanopi-r4s` | `openwrt-nanopi-r4s-...` |
 
 ### 固件下载
+
+- OpenWrt：运行 `X86-OpenWrt.yml` / `R2S-OpenWrt.yml` 等，产物前缀 `openwrt-`
+- ImmortalWrt：运行 `X86-ImmortalWrt.yml`，ImageBuilder 源为 `downloads.immortalwrt.org`，产物前缀 `immortalwrt-`
+- 统一入口：`OpenWrt-Matrix.yml` 手动运行时可选择 `upstream`（`openwrt` / `immortalwrt`）与 `targets`
+- Release tag 形如 `openwrt-25.12.6`、`immortalwrt-25.12.2`
 
 - 选择自己设备对应的固件下载：[Releases](https://github.com/QiuSimons/YAOF/releases)
 

@@ -7,6 +7,10 @@ on:
         required: false
         type: string
         default: "X86"
+      upstream:
+        required: false
+        type: string
+        default: "openwrt"
       version:
         required: false
         type: string
@@ -19,6 +23,14 @@ on:
         required: false
         type: string
         default: "X86"
+      upstream:
+        description: "ImageBuilder source"
+        required: false
+        type: choice
+        options:
+          - openwrt
+          - immortalwrt
+        default: openwrt
       version:
         description: "OpenWrt version (e.g. 25.12.6 or leave blank for latest 25.x)"
         required: false
@@ -39,20 +51,32 @@ jobs:
       - name: Checkout Source
         uses: actions/checkout@v6
 
-      - name: Resolve OpenWrt Version
+      - name: Resolve Upstream Version
         id: resolve-ver
         shell: bash
         run: |
           req="${{ inputs.version }}"
+          upstream="${{ inputs.upstream }}"
+          [ -n "$upstream" ] || upstream="openwrt"
+          case "$upstream" in
+            immortalwrt)
+              base_url="https://downloads.immortalwrt.org"
+              git_url="https://github.com/immortalwrt/immortalwrt.git"
+              ;;
+            *)
+              base_url="https://downloads.openwrt.org"
+              git_url="https://github.com/openwrt/openwrt.git"
+              ;;
+          esac
           default_major="25.12"
           [ -n "$req" ] && [ "$req" != "latest" ] || req="$default_major"
 
-          versions=$(curl -fsSL --retry 3 https://downloads.openwrt.org/releases/ 2>/dev/null | \
+          versions=$(curl -fsSL --retry 3 "${base_url}/releases/" 2>/dev/null | \
             grep -oE 'href="[0-9]+\.[0-9]+\.[0-9]+(-rc[0-9]+)?/"' | \
             sed 's/href="//;s/\///;s/"//' | sort -V || true)
 
           if [ -z "$versions" ]; then
-            versions=$(git ls-remote --tags --refs https://github.com/openwrt/openwrt.git 2>/dev/null | awk -F'/' '{print $NF}' | sed 's/^v//' || true)
+            versions=$(git ls-remote --tags --refs "$git_url" 2>/dev/null | awk -F'/' '{print $NF}' | sed 's/^v//' || true)
           fi
 
           resolved=""
@@ -67,7 +91,7 @@ jobs:
           fi
 
           [ -n "$resolved" ] || resolved="${req:-25.12.6}"
-          echo "Resolved OpenWrt version: ${resolved}"
+          echo "Resolved ${upstream} version: ${resolved}"
           echo "version=${resolved}" >> "$GITHUB_OUTPUT"
 
       - name: Calculate Target Matrix
@@ -88,7 +112,10 @@ jobs:
           # Empty input means X86 only; list names explicitly to build more.
           [ -n "$inputs_targets" ] || inputs_targets="X86"
 
-          filtered=$(echo "$all_targets" | jq --arg targets "$inputs_targets" '[.[] | select(.name as $name | ($targets | split(",") | map(gsub(" "; "")) | index($name))) ]')
+          inputs_upstream="${{ inputs.upstream }}"
+          [ -n "$inputs_upstream" ] || inputs_upstream="openwrt"
+
+          filtered=$(echo "$all_targets" | jq --arg targets "$inputs_targets" --arg upstream "$inputs_upstream" '[.[] | select(.name as $name | ($targets | split(",") | map(gsub(" "; "")) | index($name))) | .upstream = $upstream ]')
           echo "matrix=$(echo "$filtered" | jq -c '{include: .}')" >> "$GITHUB_OUTPUT"
 
   build:
@@ -136,7 +163,7 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           name: ${{ matrix.upstream }}-${{ needs.setup.outputs.version }}
-          tag: ${{ needs.setup.outputs.version }}
+          tag: ${{ matrix.upstream }}-${{ needs.setup.outputs.version }}
           commit: ${{ github.sha }}
           allowUpdates: true
           replacesArtifacts: true

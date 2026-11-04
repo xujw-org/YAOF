@@ -1,0 +1,18 @@
+name: X86-ImmortalWrt
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "ImmortalWrt version or series (e.g. 25.12.2, 25.12, or latest)"
+        required: false
+        type: string
+        default: "latest"
+
+jobs:
+  build:
+    uses: ./.github/workflows/OpenWrt-Matrix.yml
+    with:
+      targets: "X86"
+      upstream: "immortalwrt"
+      version: ${{ inputs.version || 'latest' }}

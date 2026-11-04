@@ -25,6 +25,20 @@ die() {
     exit 1
 }
 
+case "$UPSTREAM" in
+    openwrt)
+        UPSTREAM_URL="https://downloads.openwrt.org"
+        UPSTREAM_GIT="https://github.com/openwrt/openwrt.git"
+        ;;
+    immortalwrt)
+        UPSTREAM_URL="https://downloads.immortalwrt.org"
+        UPSTREAM_GIT="https://github.com/immortalwrt/immortalwrt.git"
+        ;;
+    *)
+        die "Unsupported upstream: ${UPSTREAM} (expected: openwrt, immortalwrt)"
+        ;;
+esac
+
 resolve_version() {
     local req="${1:-}"
     local default_major="25.12"
@@ -33,12 +47,12 @@ resolve_version() {
     fi
 
     local versions
-    versions=$(curl -fsSL --retry 3 https://downloads.openwrt.org/releases/ 2>/dev/null | \
+    versions=$(curl -fsSL --retry 3 "${UPSTREAM_URL}/releases/" 2>/dev/null | \
         grep -oE 'href="[0-9]+\.[0-9]+\.[0-9]+(-rc[0-9]+)?/"' | \
         sed 's/href="//;s/\///;s/"//' | sort -V || true)
 
     if [ -z "$versions" ]; then
-        versions=$(git ls-remote --tags --refs https://github.com/openwrt/openwrt.git 2>/dev/null | awk -F'/' '{print $NF}' | sed 's/^v//' || true)
+        versions=$(git ls-remote --tags --refs "${UPSTREAM_GIT}" 2>/dev/null | awk -F'/' '{print $NF}' | sed 's/^v//' || true)
     fi
 
     if echo "$versions" | grep -qx "$req"; then
@@ -64,7 +78,7 @@ resolve_version() {
 }
 
 VERSION=$(resolve_version "$VERSION")
-log "Using OpenWrt release: ${VERSION}"
+log "Using ${UPSTREAM} release: ${VERSION}"
 
 case "$TARGET" in
     x86)
@@ -78,16 +92,16 @@ case "$TARGET" in
         ;;
 esac
 
-WORK_DIR="${ROOT_DIR}/build_${TARGET}_${SUBTARGET}_${PROFILE}"
+WORK_DIR="${ROOT_DIR}/build_${UPSTREAM}_${TARGET}_${SUBTARGET}_${PROFILE}"
 OUTPUT_DIR="${ROOT_DIR}/artifact"
 mkdir -p "$WORK_DIR" "$OUTPUT_DIR"
 
-IB_NAME="openwrt-imagebuilder-${VERSION}-${TARGET}-${SUBTARGET}.Linux-x86_64"
+IB_NAME="${UPSTREAM}-imagebuilder-${VERSION}-${TARGET}-${SUBTARGET}.Linux-x86_64"
 IB_DIR="${WORK_DIR}/${IB_NAME}"
 
 if [ ! -d "$IB_DIR" ]; then
     IB_ARCHIVE="${WORK_DIR}/${IB_NAME}.tar.zst"
-    IB_URL="https://downloads.openwrt.org/releases/${VERSION}/targets/${TARGET}/${SUBTARGET}/${IB_NAME}.tar.zst"
+    IB_URL="${UPSTREAM_URL}/releases/${VERSION}/targets/${TARGET}/${SUBTARGET}/${IB_NAME}.tar.zst"
     log "Downloading ImageBuilder: ${IB_URL}"
     curl -fsSL --retry 3 --retry-delay 2 "$IB_URL" -o "$IB_ARCHIVE" || die "Failed to download ImageBuilder archive"
     tar --zstd -xf "$IB_ARCHIVE" -C "$WORK_DIR"
@@ -95,6 +109,7 @@ if [ ! -d "$IB_DIR" ]; then
 fi
 
 mkdir -p "${IB_DIR}/keys"
+[ -f "${IB_DIR}/repositories" ] || : > "${IB_DIR}/repositories"
 KEY_URL="https://qiusimons.github.io/OpenWrt-Add/keys/custom-feed.rsa.pub"
 log "Fetching feed signing key: ${KEY_URL}"
 curl -fsSL --retry 3 --retry-delay 2 "$KEY_URL" -o "${IB_DIR}/keys/custom-feed.rsa.pub" || die "Failed to download feed signing key"
