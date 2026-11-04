@@ -117,7 +117,7 @@ IB_DIR="${WORK_DIR}/${IB_NAME}"
 if [ ! -d "$IB_DIR" ]; then
     IB_ARCHIVE="${WORK_DIR}/${IB_NAME}.tar.zst"
     log "Downloading ImageBuilder: ${IB_URL}"
-    curl -fsSL --retry 3 --retry-delay 2 "$IB_URL" -o "$IB_ARCHIVE" || die "Failed to download ImageBuilder archive"
+    curl -fsSL --http1.1 --retry 5 --retry-all-errors --retry-delay 3 "$IB_URL" -o "$IB_ARCHIVE" || die "Failed to download ImageBuilder archive"
     tar --zstd -xf "$IB_ARCHIVE" -C "$WORK_DIR"
     rm -f "$IB_ARCHIVE"
 fi
