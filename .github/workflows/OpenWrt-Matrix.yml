@@ -173,6 +173,27 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           name: ${{ matrix.upstream }}-${{ needs.setup.outputs.version }}
+          body: |
+            ## YAOF ${{ matrix.upstream }} ${{ needs.setup.outputs.version }}
+
+            基于 ${{ matrix.upstream }} 官方 ImageBuilder 构建的 ${{ matrix.name }} 固件。
+
+            ### 产物
+            - `*-squashfs-combined-efi.img.gz`：UEFI 启动，squashfs 根文件系统
+            - `*-ext4-combined-efi.img.gz`：UEFI 启动，ext4 根文件系统
+            - `*-image.iso`：BIOS 启动安装镜像
+            - `*-image-efi.iso`：UEFI 启动安装镜像
+
+            ### 默认配置
+            - 管理地址：http://10.1.1.2
+            - 主机名：KingWrt
+            - ttyd：http://10.1.1.2:7681（免登录）
+
+            ### 说明
+            - 资产文件名包含构建日期；同一 tag 仅保留最近 3 次构建。
+            - FlowCone 提供 UDP Full-Cone NAT。
+            - ImmortalWrt 额外启用 firewall4 fullcone（TCP/非 UDP）。
+            - 问题反馈：https://github.com/xujw-org/YAOF/issues
           tag: ${{ matrix.upstream }}-${{ needs.setup.outputs.version }}
           commit: ${{ github.sha }}
           allowUpdates: true
