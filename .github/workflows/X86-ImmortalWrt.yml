@@ -1,6 +1,8 @@
 name: X86-ImmortalWrt
 
 on:
+  schedule:
+    - cron: '0 6 */3 * *'
   workflow_dispatch:
     inputs:
       version:
