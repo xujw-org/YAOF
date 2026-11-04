@@ -162,7 +162,9 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: ${{ matrix.upstream }}-${{ matrix.name }}-${{ needs.setup.outputs.version }}
-          path: artifact/*.img.gz
+          path: |
+            artifact/*.img.gz
+            artifact/*.iso
           if-no-files-found: error
           retention-days: 7
 
@@ -176,4 +178,4 @@ jobs:
           allowUpdates: true
           replacesArtifacts: true
           token: ${{ secrets.GITHUB_TOKEN }}
-          artifacts: artifact/*.img.gz
+          artifacts: "artifact/*.img.gz,artifact/*.iso"
