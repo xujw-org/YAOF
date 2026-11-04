@@ -1,0 +1,7 @@
+#!/bin/sh
+# Set the factory-default LAN address.
+[ -f /etc/config/network ] || exit 0
+uci -q set network.lan.ipaddr='10.1.1.2' || exit 0
+uci -q set network.lan.netmask='255.255.255.0' || exit 0
+uci -q commit network || exit 0
+exit 0

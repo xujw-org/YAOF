@@ -27,6 +27,7 @@ luci-i18n-3cat-zh-cn
 luci-i18n-airconnect-zh-cn
 luci-i18n-filemanager-zh-cn
 luci-i18n-partexp-zh-cn
+luci-i18n-ttyd-zh-cn
 
 # Proxy & eBPF
 luci-app-homeproxy
@@ -60,6 +61,10 @@ kmod-tcp-bbr
 zram-swap
 luci-app-filemanager
 luci-app-partexp
+
+# Terminal
+ttyd
+luci-app-ttyd
 
 # USB Tethering
 # kmod-usb-net-rndis

@@ -1,0 +1,12 @@
+#!/bin/sh
+# Run ttyd on the LAN with a passwordless root shell.
+[ -f /etc/config/ttyd ] || exit 0
+uci -q set ttyd.@ttyd[0].interface='@lan' || exit 0
+uci -q set ttyd.@ttyd[0].port='7681' || exit 0
+uci -q set ttyd.@ttyd[0].command='/bin/sh -l' || exit 0
+uci -q commit ttyd || exit 0
+if [ -x /etc/init.d/ttyd ]; then
+    /etc/init.d/ttyd enable
+    /etc/init.d/ttyd restart
+fi
+exit 0
