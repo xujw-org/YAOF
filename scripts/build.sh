@@ -107,7 +107,7 @@ mkdir -p "$WORK_DIR" "$OUTPUT_DIR"
 
 if [ "$UPSTREAM" = "istoreos" ]; then
     IB_NAME="istoreos-imagebuilder-x86-64.Linux-x86_64"
-    IB_URL="https://fw20.koolcenter.com/iStoreOS/ib/x86_64/${IB_NAME}.tar.zst"
+    IB_URL="https://fw20.koolcenter.com/iStoreOS/ib/x86_64/${IB_NAME}.tar.xz"
 else
     IB_NAME="${UPSTREAM}-imagebuilder-${VERSION}-${TARGET}-${SUBTARGET}.Linux-x86_64"
     IB_URL="${UPSTREAM_URL}/releases/${VERSION}/targets/${TARGET}/${SUBTARGET}/${IB_NAME}.tar.zst"
@@ -115,10 +115,13 @@ fi
 IB_DIR="${WORK_DIR}/${IB_NAME}"
 
 if [ ! -d "$IB_DIR" ]; then
-    IB_ARCHIVE="${WORK_DIR}/${IB_NAME}.tar.zst"
+    IB_ARCHIVE="${WORK_DIR}/$(basename "$IB_URL")"
     log "Downloading ImageBuilder: ${IB_URL}"
-    curl -fsSL --http1.1 --retry 5 --retry-all-errors --retry-delay 3 "$IB_URL" -o "$IB_ARCHIVE" || die "Failed to download ImageBuilder archive"
-    tar --zstd -xf "$IB_ARCHIVE" -C "$WORK_DIR"
+    curl -fL --http1.1 --retry 5 --retry-all-errors --retry-delay 3 -o "$IB_ARCHIVE" "$IB_URL" || die "Failed to download ImageBuilder archive"
+    case "$IB_ARCHIVE" in
+        *.tar.xz) tar -xJf "$IB_ARCHIVE" -C "$WORK_DIR" ;;
+        *) tar --zstd -xf "$IB_ARCHIVE" -C "$WORK_DIR" ;;
+    esac
     rm -f "$IB_ARCHIVE"
 fi
 
