@@ -6,7 +6,7 @@ on:
       targets:
         required: false
         type: string
-        default: ""
+        default: "X86"
       version:
         required: false
         type: string
@@ -15,10 +15,10 @@ on:
   workflow_dispatch:
     inputs:
       targets:
-        description: "Select target platforms (comma separated, e.g. X86,R2S,R2C,R3S,R4S ;leave blank for all)"
+        description: "Select target platforms (comma separated, e.g. X86,R2S,R2C,R3S,R4S ; default: X86)"
         required: false
         type: string
-        default: ""
+        default: "X86"
       version:
         description: "OpenWrt version (e.g. 25.12.6 or leave blank for latest 25.x)"
         required: false
@@ -85,12 +85,11 @@ jobs:
           inputs_targets="${{ inputs.targets }}"
           inputs_targets=$(echo "$inputs_targets" | sed 's/，/,/g' | tr 'a-z' 'A-Z' | xargs)
 
-          if [ -z "$inputs_targets" ]; then
-            echo "matrix=$(echo "$all_targets" | jq -c '{include: .}')" >> "$GITHUB_OUTPUT"
-          else
-            filtered=$(echo "$all_targets" | jq --arg targets "$inputs_targets" '[.[] | select(.name as $name | ($targets | split(",") | map(gsub(" "; "")) | index($name))) ]')
-            echo "matrix=$(echo "$filtered" | jq -c '{include: .}')" >> "$GITHUB_OUTPUT"
-          fi
+          # Empty input means X86 only; list names explicitly to build more.
+          [ -n "$inputs_targets" ] || inputs_targets="X86"
+
+          filtered=$(echo "$all_targets" | jq --arg targets "$inputs_targets" '[.[] | select(.name as $name | ($targets | split(",") | map(gsub(" "; "")) | index($name))) ]')
+          echo "matrix=$(echo "$filtered" | jq -c '{include: .}')" >> "$GITHUB_OUTPUT"
 
   build:
     name: Build ${{ matrix.name }} (OpenWrt ${{ needs.setup.outputs.version }})
