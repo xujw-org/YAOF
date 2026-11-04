@@ -62,10 +62,10 @@ luci-app-filemanager
 luci-app-partexp
 
 # USB Tethering
-kmod-usb-net-rndis
-kmod-usb-net-ipheth
-usbmuxd
-kmod-usb-net-cdc-ether
+# kmod-usb-net-rndis
+# kmod-usb-net-ipheth
+# usbmuxd
+# kmod-usb-net-cdc-ether
 
 # Base Packages
 -dnsmasq
