@@ -14,6 +14,7 @@
 - **现代 LuCI**：纯 JS 界面、Vantage 主题，首次开机初始化中文环境、国内 NTP 与镜像源
 - **插件**：HomeProxy、Nikki、Honk / dae（eBPF 透明代理）、FlowCone（eBPF FullCone NAT）、WireGuard、ZeroTier、SQM（CAKE / FQ_Codel）、NATMap-T、Bandix、AP-Modem、ARP 绑定、AirConnect、DDNS、UPnP、3cat
 - **底层优化**：BBR 拥塞控制；网卡上线时自动拉满 RX/TX Ring Buffer；zram-swap
+- **Full-Cone NAT**：FlowCone 提供 UDP Full-Cone；ImmortalWrt 额外启用 firewall4 fullcone（非 UDP/TCP），两者按协议分工
 - **固件格式**：同时产出 `img.gz`（sysupgrade / combined-efi）与 `iso`（`image.iso`、`image-efi.iso`）
 - **X86 驱动**：Intel、Realtek 2.5G、Mellanox 10G/25G、VirtIO / VMXNet3 及 Intel 核显（i915 DRM）
 - **NanoPi**：支持 R2S / R2C / R3S / R4S，适配 PWM 温控风扇驱动
