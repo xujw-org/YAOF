@@ -30,6 +30,7 @@ on:
         options:
           - openwrt
           - immortalwrt
+          - istoreos
         default: openwrt
       version:
         description: "OpenWrt version (e.g. 25.12.6 or leave blank for latest 25.x)"
@@ -58,6 +59,11 @@ jobs:
           req="${{ inputs.version }}"
           upstream="${{ inputs.upstream }}"
           [ -n "$upstream" ] || upstream="openwrt"
+          if [ "$upstream" = "istoreos" ]; then
+            echo "Resolved istoreos version: snapshot"
+            echo "version=snapshot" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           case "$upstream" in
             immortalwrt)
               base_url="https://downloads.immortalwrt.org"

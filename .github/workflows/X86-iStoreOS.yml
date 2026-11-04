@@ -1,0 +1,12 @@
+name: X86-iStoreOS
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    uses: ./.github/workflows/OpenWrt-Matrix.yml
+    with:
+      targets: "X86"
+      upstream: "istoreos"
+      version: "snapshot"

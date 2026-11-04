@@ -34,8 +34,12 @@ case "$UPSTREAM" in
         UPSTREAM_URL="https://downloads.immortalwrt.org"
         UPSTREAM_GIT="https://github.com/immortalwrt/immortalwrt.git"
         ;;
+    istoreos)
+        UPSTREAM_URL="https://fw0.koolcenter.com"
+        UPSTREAM_GIT=""
+        ;;
     *)
-        die "Unsupported upstream: ${UPSTREAM} (expected: openwrt, immortalwrt)"
+        die "Unsupported upstream: ${UPSTREAM} (expected: openwrt, immortalwrt, istoreos)"
         ;;
 esac
 
@@ -77,7 +81,12 @@ resolve_version() {
     echo "${req:-25.12.6}"
 }
 
-VERSION=$(resolve_version "$VERSION")
+if [ "$UPSTREAM" = "istoreos" ]; then
+    [ "$TARGET" = "x86" ] || die "iStoreOS ImageBuilder is x86 only"
+    [ -n "$VERSION" ] && [ "$VERSION" != "latest" ] || VERSION="snapshot"
+else
+    VERSION=$(resolve_version "$VERSION")
+fi
 log "Using ${UPSTREAM} release: ${VERSION}"
 
 case "$TARGET" in
@@ -96,12 +105,17 @@ WORK_DIR="${ROOT_DIR}/build_${UPSTREAM}_${TARGET}_${SUBTARGET}_${PROFILE}"
 OUTPUT_DIR="${ROOT_DIR}/artifact"
 mkdir -p "$WORK_DIR" "$OUTPUT_DIR"
 
-IB_NAME="${UPSTREAM}-imagebuilder-${VERSION}-${TARGET}-${SUBTARGET}.Linux-x86_64"
+if [ "$UPSTREAM" = "istoreos" ]; then
+    IB_NAME="istoreos-imagebuilder-x86-64.Linux-x86_64"
+    IB_URL="https://fw0.koolcenter.com/iStoreOS/ib/x86_64/${IB_NAME}.tar.zst"
+else
+    IB_NAME="${UPSTREAM}-imagebuilder-${VERSION}-${TARGET}-${SUBTARGET}.Linux-x86_64"
+    IB_URL="${UPSTREAM_URL}/releases/${VERSION}/targets/${TARGET}/${SUBTARGET}/${IB_NAME}.tar.zst"
+fi
 IB_DIR="${WORK_DIR}/${IB_NAME}"
 
 if [ ! -d "$IB_DIR" ]; then
     IB_ARCHIVE="${WORK_DIR}/${IB_NAME}.tar.zst"
-    IB_URL="${UPSTREAM_URL}/releases/${VERSION}/targets/${TARGET}/${SUBTARGET}/${IB_NAME}.tar.zst"
     log "Downloading ImageBuilder: ${IB_URL}"
     curl -fsSL --retry 3 --retry-delay 2 "$IB_URL" -o "$IB_ARCHIVE" || die "Failed to download ImageBuilder archive"
     tar --zstd -xf "$IB_ARCHIVE" -C "$WORK_DIR"
