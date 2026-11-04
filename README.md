@@ -44,7 +44,7 @@
 
 - OpenWrt：运行 `X86-OpenWrt.yml` / `R2S-OpenWrt.yml` 等，产物前缀 `openwrt-`
 - ImmortalWrt：运行 `X86-ImmortalWrt.yml`，ImageBuilder 源为 `downloads.immortalwrt.org`，产物前缀 `immortalwrt-`
-- iStoreOS：运行 `X86-iStoreOS.yml`，ImageBuilder 源为 `fw0.koolcenter.com`（滚动源，版本标识 `snapshot`），产物前缀 `istoreos-`
+- iStoreOS：运行 `X86-iStoreOS.yml`，ImageBuilder 源为 `fw20.koolcenter.com`（滚动源，版本标识 `snapshot`），产物前缀 `istoreos-`
 - 统一入口：`OpenWrt-Matrix.yml` 手动运行时可选择 `upstream`（`openwrt` / `immortalwrt` / `istoreos`）与 `targets`
 - Release tag 形如 `openwrt-25.12.6`、`immortalwrt-25.12.2`、`istoreos-snapshot`
 

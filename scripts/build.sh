@@ -35,7 +35,7 @@ case "$UPSTREAM" in
         UPSTREAM_GIT="https://github.com/immortalwrt/immortalwrt.git"
         ;;
     istoreos)
-        UPSTREAM_URL="https://fw0.koolcenter.com"
+        UPSTREAM_URL="https://fw20.koolcenter.com"
         UPSTREAM_GIT=""
         ;;
     *)
@@ -107,7 +107,7 @@ mkdir -p "$WORK_DIR" "$OUTPUT_DIR"
 
 if [ "$UPSTREAM" = "istoreos" ]; then
     IB_NAME="istoreos-imagebuilder-x86-64.Linux-x86_64"
-    IB_URL="https://fw0.koolcenter.com/iStoreOS/ib/x86_64/${IB_NAME}.tar.zst"
+    IB_URL="https://fw20.koolcenter.com/iStoreOS/ib/x86_64/${IB_NAME}.tar.zst"
 else
     IB_NAME="${UPSTREAM}-imagebuilder-${VERSION}-${TARGET}-${SUBTARGET}.Linux-x86_64"
     IB_URL="${UPSTREAM_URL}/releases/${VERSION}/targets/${TARGET}/${SUBTARGET}/${IB_NAME}.tar.zst"
