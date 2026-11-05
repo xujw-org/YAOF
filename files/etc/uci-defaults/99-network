@@ -1,7 +1,76 @@
 #!/bin/sh
-# Set the factory-default LAN address.
+# Force the factory LAN to a static 10.1.1.2/24 and keep it reachable.
+#
+# iStoreOS mutes the generic x86 board defaults and rebuilds lan/wan from the
+# NICs found after module load (/etc/uci-defaults/09_istoreos -> rescan_nic).
+# That rebuild leaves lan on proto=dhcp for single-NIC machines, and writes no
+# lan section at all when it sees no eth* device. Patching only ipaddr is
+# therefore useless: the section has to be complete and static.
+
 [ -f /etc/config/network ] || exit 0
-uci -q set network.lan.ipaddr='10.1.1.2' || exit 0
-uci -q set network.lan.netmask='255.255.255.0' || exit 0
+
+network_has_device() {
+    uci -q show network | grep -q "^network\.[^.]*\.name='$1'$"
+}
+
+lan_eths() {
+    eths=""
+    for dev in /sys/class/net/*; do
+        case "${dev##*/}" in
+            eth*) eths="$eths ${dev##*/}" ;;
+        esac
+    done
+    echo "${eths# }"
+}
+
+eths="$(lan_eths)"
+lan_dev="$(uci -q get network.lan.device)"
+
+# Rebuild the interface when upstream left it unusable: no device at all, or a
+# br-lan that no device section defines.
+if [ -z "$lan_dev" ] || { [ "$lan_dev" = 'br-lan' ] && ! network_has_device 'br-lan'; }; then
+    [ -n "$eths" ] || exit 0
+    wan_dev="$(uci -q get network.wan.device)"
+    ports=""
+    for port in $eths; do
+        [ "$port" = "$wan_dev" ] || ports="$ports $port"
+    done
+    ports="${ports# }"
+    [ -n "$ports" ] || exit 0
+
+    [ -n "$(uci -q get network.lan)" ] || uci -q set network.lan='interface'
+    if [ "$(echo "$ports" | wc -w)" -eq 1 ]; then
+        uci -q set network.lan.device="$ports"
+    else
+        network_has_device 'br-lan' || {
+            uci -q delete network.yaoflan
+            uci -q set network.yaoflan='device'
+            uci -q set network.yaoflan.name='br-lan'
+            uci -q set network.yaoflan.type='bridge'
+            for port in $ports; do
+                uci -q add_list network.yaoflan.ports="$port"
+            done
+        }
+        uci -q set network.lan.device='br-lan'
+    fi
+fi
+
+uci -q set network.lan.proto='static'
+uci -q set network.lan.ipaddr='10.1.1.2/24'
+uci -q delete network.lan.netmask
+uci -q delete network.lan.gateway
+uci -q delete network.lan.dns
+
+# Keep the DHCP pool inside the same /24 as the new address.
+[ -n "$(uci -q get dhcp.lan)" ] || uci -q set dhcp.lan='dhcp'
+uci -q set dhcp.lan.interface='lan'
+uci -q set dhcp.lan.ignore='0'
+uci -q set dhcp.lan.start='100'
+uci -q set dhcp.lan.limit='150'
+uci -q set dhcp.lan.leasetime='12h'
+
 uci -q commit network || exit 0
+uci -q commit dhcp || exit 0
+
+logger -t yaof-network "lan=10.1.1.2/24 device=$(uci -q get network.lan.device)" 2>/dev/null
 exit 0
